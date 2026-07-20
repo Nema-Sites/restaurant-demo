@@ -4,12 +4,6 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=black&style=flat-square)
 ![Template](https://img.shields.io/badge/Type-White--label-8A2BE2?style=flat-square)
 ![Status](https://img.shields.io/badge/Status-Live-success?style=flat-square)
-# 🍽️ Restaurant Demo — Ordering & Reservations Template
-
-![HTML](https://img.shields.io/badge/HTML5-Multi--page-E34F26?logo=html5&logoColor=white&style=flat-square)
-![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-F7DF1E?logo=javascript&logoColor=black&style=flat-square)
-![Template](https://img.shields.io/badge/Type-White--label-8A2BE2?style=flat-square)
-![Status](https://img.shields.io/badge/Status-Live-success?style=flat-square)
 
 A complete restaurant website demo covering the three things a restaurant site actually needs to do: tell the story, take online orders, and book tables. Built as a **white-label template** — branding, menu, hours, and copy are all placeholder-driven so it can be reskinned for a real restaurant in minutes.
 
