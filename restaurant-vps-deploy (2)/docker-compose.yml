@@ -1,0 +1,6 @@
+services:
+  restaurant:
+    image: nginx:alpine
+    volumes:
+      - ./restaurant:/usr/share/nginx/html:ro
+    restart: unless-stopped

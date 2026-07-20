@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restaurant Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E0B09; --panel:#17130F; --panel-2:#1D1812;
+    --ink:#F3ECE1; --muted:#9C8F7E; --line:rgba(243,236,225,0.12);
+    --gold:#C9A15A; --gold-light:#E4C583; --gold-tint:rgba(201,161,90,0.10);
+    --success:#7BAE8C; --success-tint:rgba(123,174,140,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,.display{ font-family:'Cormorant Garamond',serif; font-weight:500; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:'Inter'; }
+  .small-caps{ text-transform:uppercase; letter-spacing:0.14em; font-size:10.5px; font-weight:500; color:var(--muted); }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  header{ background:var(--bg); border-bottom:1px solid var(--line); }
+  .nav-wrap{ max-width:1180px; margin:0 auto; padding:18px 28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; }
+  .logo{ display:flex; align-items:center; gap:10px; font-size:19px; font-weight:500; font-family:'Cormorant Garamond'; }
+  .logo-mark{ width:8px; height:8px; background:var(--gold); transform:rotate(45deg); }
+  .exit-link{ font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+  .exit-link:hover{ color:var(--gold-light); }
+
+  .tab-row{ display:flex; gap:8px; overflow-x:auto; padding:0 28px; max-width:1180px; margin:16px auto 0; }
+  .tab-pill{ padding:10px 18px; border:1px solid var(--line); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:600; color:var(--muted); cursor:pointer; white-space:nowrap; }
+  .tab-pill:hover{ color:var(--ink); }
+  .tab-pill.active{ background:var(--gold); color:var(--bg); border-color:var(--gold); }
+
+  .main{ max-width:1180px; margin:0 auto; padding:28px 28px 60px; }
+  .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; flex-wrap:wrap; gap:14px; }
+  .topbar h1{ font-size:26px; margin:0; font-weight:400; }
+
+  .kpi-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:24px; }
+  .kpi{ background:var(--panel); border:1px solid var(--line); padding:20px; }
+  .kpi .l{ font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .kpi .n{ font-family:'Cormorant Garamond'; font-size:26px; font-weight:500; color:var(--gold-light); }
+  .kpi .n.alert{ color:#D08A6E; }
+
+  .panel{ background:var(--panel); border:1px solid var(--line); padding:24px; margin-bottom:18px; }
+  .panel-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px; }
+  .panel h3{ font-size:18px; margin:0; font-weight:500; }
+
+  .kanban{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .kcol-head{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:12px; display:flex; justify-content:space-between; }
+  .kcol-head .count{ background:var(--line); color:var(--ink); padding:1px 8px; font-size:10.5px; }
+  .kcard{ background:var(--bg); border:1px solid var(--line); padding:14px; margin-bottom:10px; }
+  .kcard .kid{ font-family:'JetBrains Mono'; font-size:10px; color:var(--muted); margin-bottom:5px; }
+  .kcard .kname{ font-size:14px; font-weight:500; font-family:'Cormorant Garamond'; margin-bottom:4px; }
+  .kcard .kitems{ font-size:11px; color:var(--muted); line-height:1.5; margin-bottom:12px; font-style:italic; }
+  .kcard .kbtn{ width:100%; padding:8px; border:1px solid var(--gold); background:transparent; color:var(--gold-light); font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase; font-weight:600; cursor:pointer; }
+  .kcard .kbtn:hover{ background:var(--gold); color:var(--bg); }
+  .kcard .kbtn.done{ border-color:var(--success); color:var(--success); }
+  .kcard .kbtn.done:hover{ background:var(--success); color:var(--bg); }
+
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th{ text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--muted); padding:0 10px 12px 0; font-weight:600; border-bottom:1px solid var(--line); }
+  td{ padding:14px 10px 14px 0; border-bottom:1px dotted var(--line); }
+  tr:last-child td{ border-bottom:none; }
+  .badge{ font-size:10px; font-weight:700; padding:4px 11px; text-transform:uppercase; letter-spacing:0.04em; border:1px solid var(--success); color:var(--success); }
+
+  .menu-mgmt-row{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-top:1px dotted var(--line); }
+  .menu-mgmt-row:first-child{ border-top:none; }
+  .mm-left .mn{ font-size:15px; font-weight:500; font-family:'Cormorant Garamond'; }
+  .mm-left .mc{ font-size:11px; color:var(--muted); margin-top:2px; }
+  .toggle{ width:38px; height:20px; background:var(--success); position:relative; cursor:pointer; flex-shrink:0; }
+  .toggle::after{ content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; background:var(--bg); transition:transform .15s ease; }
+  .toggle.off{ background:var(--line); }
+  .toggle.off::after{ transform:translateX(18px); }
+
+  @media (max-width:980px){
+    .kpi-row{ grid-template-columns:1fr 1fr; }
+    .kanban{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:600px){
+    .kanban{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-wrap">
+    <div class="logo"><span class="logo-mark"></span> <span id="navName"></span></div>
+    <a href="index.html" class="exit-link">← Homepage</a>
+  </div>
+  <div class="tab-row">
+    <div class="tab-pill active" data-view="overview">Overview</div>
+    <div class="tab-pill" data-view="kitchen">Kitchen Queue</div>
+    <div class="tab-pill" data-view="reservations">Reservations</div>
+    <div class="tab-pill" data-view="menu">Menu</div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="topbar">
+    <div><span class="small-caps" style="display:block;margin-bottom:6px;">Restaurant Admin</span><h1 id="topHeading">Tonight at a Glance</h1></div>
+  </div>
+
+  <div class="view active" id="view-overview">
+    <div class="kpi-row">
+      <div class="kpi"><div class="l">Covers Tonight</div><div class="n" id="kpiCovers">0</div></div>
+      <div class="kpi"><div class="l">Orders in Kitchen</div><div class="n alert" id="kpiOrders">0</div></div>
+      <div class="kpi"><div class="l">Revenue Today</div><div class="n" id="kpiRevenue">R0</div></div>
+      <div class="kpi"><div class="l">Avg. Order Value</div><div class="n" id="kpiAvg">R0</div></div>
+    </div>
+    <div class="panel">
+      <h3 style="margin-bottom:16px;">Upcoming Reservations</h3>
+      <div id="upcomingList"></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-kitchen">
+    <div class="panel">
+      <div class="panel-head"><h3>Kitchen Queue</h3></div>
+      <div class="kanban" id="kanbanBoard"></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-reservations">
+    <div class="panel">
+      <h3 style="margin-bottom:16px;">All Reservations</h3>
+      <table>
+        <thead><tr><th>Guest</th><th>Party</th><th>Seating</th><th>Date &amp; Time</th><th>Status</th></tr></thead>
+        <tbody id="reservationsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="view" id="view-menu">
+    <div class="panel">
+      <h3 style="margin-bottom:6px;">Menu Availability</h3>
+      <p style="font-size:12.5px;color:var(--muted);margin:0 0 18px;font-style:italic;">Toggle items off when the kitchen runs out — they'll disappear from online ordering.</p>
+      <div id="menuMgmtList"></div>
+    </div>
+  </div>
+</main>
+
+<script src="config.js"></script>
+<script>
+  document.title = "Admin — " + RESTAURANT.name;
+  document.getElementById('navName').textContent = RESTAURANT.name;
+
+  const ordersKey = RESTAURANT.storageKey + '_orders';
+  const reservationsKey = RESTAURANT.storageKey + '_reservations';
+  const availabilityKey = RESTAURANT.storageKey + '_availability';
+
+  let orders = [];
+  try{ orders = JSON.parse(localStorage.getItem(ordersKey) || '[]'); }catch(e){}
+  let reservations = [];
+  try{ reservations = JSON.parse(localStorage.getItem(reservationsKey) || '[]'); }catch(e){}
+
+  const seedOrders = [
+    { id:'ORD-1042', type:'Delivery', items:[{name:'Dry-Aged Ribeye 300g',qty:1,price:385},{name:'Wild Mushroom Pizza',qty:1,price:155}], total:575, customerName:'Zinhle Mahlangu', status:'Preparing', createdAt:new Date().toISOString() },
+    { id:'ORD-1039', type:'Pickup', items:[{name:'Margherita',qty:2,price:130}], total:260, customerName:'Peter Adams', status:'New', createdAt:new Date().toISOString() },
+    { id:'ORD-1031', type:'Delivery', items:[{name:'Whole Grilled Trout',qty:1,price:245}], total:280, customerName:'Fatima Essop', status:'Ready', createdAt:new Date().toISOString() }
+  ];
+  const seedReservations = [
+    { id:'RES-2201', partySize:4, seating:'Indoor', date:new Date().toISOString(), time:'19:30', customerName:'Sanele Zulu', status:'Confirmed' },
+    { id:'RES-2196', partySize:2, seating:'Bar', date:new Date().toISOString(), time:'20:00', customerName:'Lindiwe Cele', status:'Confirmed' },
+    { id:'RES-2188', partySize:6, seating:'Outdoor', date:new Date(Date.now()+86400000).toISOString(), time:'18:30', customerName:'Johan Botha', status:'Confirmed' }
+  ];
+
+  const allOrders = [...orders, ...seedOrders];
+  const allReservations = [...reservations, ...seedReservations];
+
+  function fmtDate(iso){ return new Date(iso).toLocaleDateString('en-US',{weekday:'short', month:'short', day:'numeric'}); }
+
+  function renderOverview(){
+    const covers = allReservations.reduce((s,r)=>s+(r.partySize||0),0);
+    document.getElementById('kpiCovers').textContent = covers;
+    document.getElementById('kpiOrders').textContent = allOrders.filter(o=>o.status!=='Completed').length;
+    const revenue = allOrders.reduce((s,o)=>s+(o.total||0),0);
+    document.getElementById('kpiRevenue').textContent = 'R'+revenue.toLocaleString();
+    document.getElementById('kpiAvg').textContent = allOrders.length ? 'R'+Math.round(revenue/allOrders.length) : 'R0';
+
+    const upcoming = [...allReservations].sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,5);
+    document.getElementById('upcomingList').innerHTML = upcoming.map(r=>`
+      <div class="menu-mgmt-row">
+        <div class="mm-left"><div class="mn">${r.customerName}</div><div class="mc">${r.partySize} guests · ${r.seating} · ${fmtDate(r.date)} ${r.time}</div></div>
+        <span class="badge">${r.status}</span>
+      </div>`).join('') || `<p style="color:var(--muted);font-size:13px;">No reservations yet.</p>`;
+  }
+
+  const statuses = ['New','Preparing','Ready','Completed'];
+  function renderKitchen(){
+    const board = document.getElementById('kanbanBoard');
+    board.innerHTML = statuses.map(status=>{
+      const items = allOrders.filter(o=>o.status===status);
+      return `<div>
+        <div class="kcol-head">${status} <span class="count">${items.length}</span></div>
+        <div>${items.map(o=>{
+          const nextStatus = statuses[statuses.indexOf(status)+1];
+          const itemsList = o.items.map(i=>`${i.qty}× ${i.name}`).join(', ');
+          return `<div class="kcard">
+            <div class="kid">${o.id} · ${o.type}</div>
+            <div class="kname">${o.customerName}</div>
+            <div class="kitems">${itemsList}</div>
+            ${nextStatus ? `<button class="kbtn ${nextStatus==='Completed'?'done':''}" data-id="${o.id}" data-next="${nextStatus}">Mark ${nextStatus}</button>` : ''}
+          </div>`;
+        }).join('') || '<p style="font-size:11.5px;color:var(--muted);font-style:italic;">Nothing here.</p>'}</div>
+      </div>`;
+    }).join('');
+
+    document.querySelectorAll('.kbtn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const o = allOrders.find(x=>x.id===btn.dataset.id);
+        if(o) o.status = btn.dataset.next;
+        renderAll();
+      });
+    });
+  }
+
+  function renderReservations(){
+    document.getElementById('reservationsBody').innerHTML = allReservations.map(r=>`
+      <tr>
+        <td>${r.customerName}</td>
+        <td>${r.partySize}</td>
+        <td>${r.seating}</td>
+        <td class="mono">${fmtDate(r.date)} · ${r.time||'—'}</td>
+        <td><span class="badge">${r.status}</span></td>
+      </tr>`).join('');
+  }
+
+  let availability = {};
+  try{ availability = JSON.parse(localStorage.getItem(availabilityKey) || '{}'); }catch(e){}
+  function renderMenuMgmt(){
+    const allItems = RESTAURANT.menu.flatMap(c=>c.items.map(i=>({...i, category:c.category})));
+    document.getElementById('menuMgmtList').innerHTML = allItems.map(i=>{
+      const isOn = availability[i.id] !== false;
+      return `<div class="menu-mgmt-row">
+        <div class="mm-left"><div class="mn">${i.name}</div><div class="mc">${i.category} · R${i.price}</div></div>
+        <div class="toggle ${isOn?'':'off'}" data-id="${i.id}"></div>
+      </div>`;
+    }).join('');
+
+    document.querySelectorAll('.toggle').forEach(t=>{
+      t.addEventListener('click', ()=>{
+        const id = t.dataset.id;
+        availability[id] = t.classList.contains('off') ? true : false;
+        localStorage.setItem(availabilityKey, JSON.stringify(availability));
+        t.classList.toggle('off');
+      });
+    });
+  }
+
+  function renderAll(){
+    renderOverview();
+    renderKitchen();
+    renderReservations();
+    renderMenuMgmt();
+  }
+  renderAll();
+
+  const viewMeta = { overview:'Tonight at a Glance', kitchen:'Kitchen Queue', reservations:'All Reservations', menu:'Menu Availability' };
+  document.querySelectorAll('.tab-pill[data-view]').forEach(link=>{
+    link.addEventListener('click', ()=>{
+      const target = link.dataset.view;
+      document.querySelectorAll('.tab-pill[data-view]').forEach(l=>l.classList.remove('active'));
+      link.classList.add('active');
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      document.getElementById('view-'+target).classList.add('active');
+      document.getElementById('topHeading').textContent = viewMeta[target];
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+</script>
+
+</body>
+</html>

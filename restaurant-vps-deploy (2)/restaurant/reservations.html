@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reservations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E0B09; --panel:#17130F; --panel-2:#1D1812;
+    --ink:#F3ECE1; --muted:#9C8F7E; --line:rgba(243,236,225,0.12);
+    --gold:#C9A15A; --gold-light:#E4C583; --gold-tint:rgba(201,161,90,0.10);
+    --success:#7BAE8C; --success-tint:rgba(123,174,140,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,.display{ font-family:'Cormorant Garamond',serif; font-weight:500; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:'Inter'; }
+  .small-caps{ text-transform:uppercase; letter-spacing:0.14em; font-size:10.5px; font-weight:500; color:var(--muted); }
+
+  header{ background:var(--bg); border-bottom:1px solid var(--line); }
+  .nav-wrap{ max-width:1180px; margin:0 auto; padding:20px 28px; display:flex; align-items:center; justify-content:space-between; }
+  .logo{ display:flex; align-items:center; gap:10px; font-size:19px; font-weight:500; font-family:'Cormorant Garamond'; }
+  .logo-mark{ width:8px; height:8px; background:var(--gold); transform:rotate(45deg); }
+  .exit-link{ font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+  .exit-link:hover{ color:var(--gold-light); }
+
+  .wrap{ max-width:720px; margin:0 auto; padding:44px 24px 100px; }
+
+  .progress-rail{ display:flex; gap:6px; margin-bottom:10px; }
+  .prog-seg{ height:1px; flex:1; background:var(--line); position:relative; }
+  .prog-seg span{ display:block; height:100%; width:0%; background:var(--gold); transition:width .3s ease; }
+  .prog-seg.done span, .prog-seg.active span{ width:100%; }
+  .step-label{ font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.14em; margin-bottom:36px; font-weight:500; }
+  .step-label .mono{ color:var(--gold-light); }
+
+  .card{ background:var(--panel); border:1px solid var(--line); padding:44px; }
+  .card h2{ font-size:28px; margin:0 0 10px; font-weight:400; }
+  .card .sub{ font-size:13.5px; color:var(--muted); margin:0 0 32px; font-style:italic; font-weight:300; }
+
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  .party-row{ display:flex; align-items:center; justify-content:center; gap:30px; padding:20px 0 8px; }
+  .party-btn{ width:40px; height:40px; border:1px solid var(--line); background:transparent; color:var(--ink); font-size:18px; cursor:pointer; }
+  .party-btn:hover{ border-color:var(--gold); color:var(--gold-light); }
+  .party-num{ font-family:'Cormorant Garamond'; font-size:38px; font-weight:500; min-width:60px; text-align:center; color:var(--gold-light); }
+  .party-label{ text-align:center; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-top:2px; margin-bottom:30px; }
+
+  .choice-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  .choice-card{ border:1px solid var(--line); padding:18px; cursor:pointer; text-align:center; transition:all .15s ease; }
+  .choice-card:hover{ border-color:var(--gold); }
+  .choice-card.selected{ border-color:var(--gold); background:var(--gold-tint); color:var(--gold-light); }
+  .choice-card .ct{ font-size:12.5px; letter-spacing:0.06em; text-transform:uppercase; font-weight:600; }
+
+  .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .cal-head .cal-month{ font-size:17px; font-weight:500; font-family:'Cormorant Garamond'; }
+  .cal-nav{ display:flex; gap:6px; }
+  .cal-nav button{ width:28px; height:28px; border:1px solid var(--line); background:transparent; color:var(--ink); cursor:pointer; }
+  .cal-nav button:hover{ border-color:var(--gold); color:var(--gold-light); }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:28px; }
+  .cal-dow{ font-size:10px; color:var(--muted); text-align:center; font-weight:600; padding-bottom:4px; letter-spacing:0.05em; }
+  .cal-day{ aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer; border:1px solid transparent; }
+  .cal-day.empty{ cursor:default; }
+  .cal-day.available:hover{ border-color:var(--gold); }
+  .cal-day.unavailable{ color:rgba(243,236,225,0.15); cursor:not-allowed; }
+  .cal-day.selected{ background:var(--gold); color:var(--bg); font-weight:700; }
+  .cal-day.today:not(.selected){ border-color:var(--gold); color:var(--gold-light); }
+
+  .time-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .time-chip{ padding:11px 0; text-align:center; border:1px solid var(--line); font-size:12.5px; font-family:'JetBrains Mono'; cursor:pointer; color:var(--muted); }
+  .time-chip:hover{ border-color:var(--gold); }
+  .time-chip.active{ border-color:var(--gold); background:var(--gold-tint); color:var(--gold-light); font-weight:600; }
+
+  .field{ margin-bottom:18px; }
+  .field label{ display:block; font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; font-weight:600; color:var(--gold-light); margin-bottom:8px; }
+  .field input, .field textarea{ width:100%; font-family:'Inter'; font-size:14px; padding:12px 14px; border:1px solid var(--line); background:var(--bg); color:var(--ink); }
+  .field input:focus, .field textarea:focus{ outline:none; border-color:var(--gold); }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+  .review-block{ border-top:1px dotted var(--line); padding-top:18px; }
+  .review-row{ display:flex; justify-content:space-between; padding:11px 0; font-size:13.5px; border-bottom:1px dotted var(--line); }
+  .review-row:last-child{ border-bottom:none; }
+  .review-row .k{ color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; font-size:11px; }
+  .review-row .v{ font-weight:500; text-align:right; font-family:'Cormorant Garamond'; font-size:16px; }
+
+  .btn-row{ display:flex; gap:12px; margin-top:32px; }
+  .btn{ font-size:11px; letter-spacing:0.1em; text-transform:uppercase; font-weight:600; padding:14px 24px; cursor:pointer; border:1px solid var(--gold); }
+  .btn-gold{ background:var(--gold); color:var(--bg); flex:1; }
+  .btn-gold:hover{ background:var(--gold-light); border-color:var(--gold-light); }
+  .btn-gold:disabled{ opacity:.35; cursor:not-allowed; background:transparent; color:var(--muted); border-color:var(--line); }
+  .btn-back{ background:transparent; border-color:var(--line); color:var(--ink); }
+  .btn-back:hover{ border-color:var(--gold); color:var(--gold-light); }
+
+  .confirm-view{ text-align:center; display:none; }
+  .confirm-view.show{ display:block; }
+  .confirm-icon{ width:56px; height:56px; border:1px solid var(--success); border-radius:50%; color:var(--success); display:flex; align-items:center; justify-content:center; margin:0 auto 24px; }
+  .confirm-icon svg{ width:24px; height:24px; }
+  .confirm-view h2{ margin-bottom:10px; }
+  .confirm-view p{ color:var(--muted); font-size:14px; margin:0 0 28px; font-style:italic; font-weight:300; }
+  .confirm-id{ font-family:'JetBrains Mono'; font-size:13px; background:var(--bg); border:1px solid var(--line); padding:16px; margin-bottom:28px; color:var(--gold-light); }
+  .confirm-actions{ display:flex; gap:12px; }
+  .confirm-actions .btn{ flex:1; text-align:center; }
+
+  @media (max-width:560px){
+    .field-row{ grid-template-columns:1fr; }
+    .time-grid{ grid-template-columns:repeat(3,1fr); }
+    .choice-grid{ grid-template-columns:1fr; }
+    .card{ padding:28px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo"><span class="logo-mark"></span> <span id="navName"></span></a>
+    <a href="index.html" class="exit-link">← Homepage</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="progress-rail">
+    <div class="prog-seg active" id="seg1"><span></span></div>
+    <div class="prog-seg" id="seg2"><span></span></div>
+    <div class="prog-seg" id="seg3"><span></span></div>
+    <div class="prog-seg" id="seg4"><span></span></div>
+  </div>
+  <div class="step-label"><span class="mono" id="stepCounter">Step 1 / 4</span> — Reserve a Table</div>
+
+  <div class="card">
+
+    <div class="panel active" id="panel1">
+      <h2>Party Size &amp; Seating</h2>
+      <p class="sub">How many, and where would you like to sit?</p>
+      <div class="party-row">
+        <button class="party-btn" id="partyMinus">−</button>
+        <div class="party-num" id="partyNum">2</div>
+        <button class="party-btn" id="partyPlus">+</button>
+      </div>
+      <div class="party-label">Guests</div>
+      <div class="choice-grid" id="seatingGrid">
+        <div class="choice-card selected" data-seating="Indoor"><div class="ct">Indoor</div></div>
+        <div class="choice-card" data-seating="Outdoor"><div class="ct">Outdoor</div></div>
+        <div class="choice-card" data-seating="Bar"><div class="ct">Bar Seating</div></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-gold" id="next1">Continue</button></div>
+    </div>
+
+    <div class="panel" id="panel2">
+      <h2>Date &amp; Time</h2>
+      <p class="sub">Availability updates live as you browse.</p>
+      <div class="cal-head">
+        <div class="cal-month" id="calMonthLabel"></div>
+        <div class="cal-nav"><button id="calPrev">‹</button><button id="calNext">›</button></div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="small-caps" style="margin-bottom:12px;display:block;">Available Times</div>
+      <div class="time-grid" id="timeGrid"></div>
+      <div class="btn-row">
+        <button class="btn btn-back" id="back2">Back</button>
+        <button class="btn btn-gold" id="next2" disabled>Continue</button>
+      </div>
+    </div>
+
+    <div class="panel" id="panel3">
+      <h2>Your Details</h2>
+      <p class="sub">We'll send your confirmation here.</p>
+      <div class="field"><label>Full Name</label><input type="text" id="custName"></div>
+      <div class="field-row">
+        <div class="field"><label>Email</label><input type="email" id="custEmail"></div>
+        <div class="field"><label>Phone</label><input type="tel" id="custPhone"></div>
+      </div>
+      <div class="field"><label>Special Requests</label><textarea id="custNotes" rows="2" placeholder="Allergies, celebrations, anything else"></textarea></div>
+      <div class="btn-row">
+        <button class="btn btn-back" id="back3">Back</button>
+        <button class="btn btn-gold" id="next3">Continue to Review</button>
+      </div>
+    </div>
+
+    <div class="panel" id="panel4">
+      <h2>Review &amp; Confirm</h2>
+      <p class="sub">Check the details before booking.</p>
+      <div class="review-block" id="reviewBlock"></div>
+      <div class="btn-row">
+        <button class="btn btn-back" id="back4">Back</button>
+        <button class="btn btn-gold" id="submitBtn">Confirm Reservation</button>
+      </div>
+    </div>
+
+    <div class="confirm-view" id="confirmView">
+      <div class="confirm-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg></div>
+      <h2>Table Reserved</h2>
+      <p>A confirmation has been sent, and the team is expecting you.</p>
+      <div class="confirm-id mono" id="confirmId"></div>
+      <div class="confirm-actions">
+        <a href="admin.html" class="btn btn-gold" style="text-align:center;">View Reservations Desk</a>
+        <a href="index.html" class="btn btn-back" style="text-align:center;">Back to Homepage</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+  document.title = "Reservations — " + RESTAURANT.name;
+  document.getElementById('navName').textContent = RESTAURANT.name;
+
+  const panels = ['panel1','panel2','panel3','panel4'];
+  const segs = ['seg1','seg2','seg3','seg4'];
+  function goTo(idx){
+    panels.forEach((p,i)=>document.getElementById(p).classList.toggle('active', i===idx));
+    segs.forEach((s,i)=>{
+      const el = document.getElementById(s);
+      el.classList.remove('active','done');
+      if(i<idx) el.classList.add('done');
+      else if(i===idx) el.classList.add('active');
+    });
+    document.getElementById('stepCounter').textContent = `Step ${idx+1} / 4`;
+  }
+
+  let partySize = 2;
+  document.getElementById('partyMinus').addEventListener('click', ()=>{
+    if(partySize>1){ partySize--; document.getElementById('partyNum').textContent = partySize; }
+  });
+  document.getElementById('partyPlus').addEventListener('click', ()=>{
+    if(partySize<12){ partySize++; document.getElementById('partyNum').textContent = partySize; }
+  });
+
+  let seating = 'Indoor';
+  document.querySelectorAll('#seatingGrid .choice-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      document.querySelectorAll('#seatingGrid .choice-card').forEach(c=>c.classList.remove('selected'));
+      card.classList.add('selected');
+      seating = card.dataset.seating;
+    });
+  });
+
+  document.getElementById('next1').addEventListener('click', ()=>goTo(1));
+  document.getElementById('back2').addEventListener('click', ()=>goTo(0));
+
+  let viewDate = new Date();
+  let selectedDate = null;
+  let selectedTime = null;
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const dowNames = ['S','M','T','W','T','F','S'];
+
+  function isUnavailable(y,m,d){ const seed=(y+m+d)%7; return seed===0; }
+
+  function renderCalendar(){
+    const y = viewDate.getFullYear(), m = viewDate.getMonth();
+    document.getElementById('calMonthLabel').textContent = `${monthNames[m]} ${y}`;
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+    dowNames.forEach(d=>{ const el=document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
+    const firstDay = new Date(y,m,1).getDay();
+    const daysInMonth = new Date(y,m+1,0).getDate();
+    const today = new Date();
+    for(let i=0;i<firstDay;i++){ const e=document.createElement('div'); e.className='cal-day empty'; grid.appendChild(e); }
+    for(let d=1; d<=daysInMonth; d++){
+      const cell = document.createElement('div');
+      const thisDate = new Date(y,m,d);
+      const isPast = thisDate < new Date(today.getFullYear(),today.getMonth(),today.getDate());
+      const unavailable = isPast || isUnavailable(y,m,d);
+      cell.className = 'cal-day ' + (unavailable ? 'unavailable' : 'available');
+      if(thisDate.toDateString() === today.toDateString()) cell.classList.add('today');
+      if(selectedDate && thisDate.toDateString() === selectedDate.toDateString()) cell.classList.add('selected');
+      cell.textContent = d;
+      if(!unavailable){
+        cell.addEventListener('click', ()=>{
+          selectedDate = thisDate; selectedTime = null;
+          document.getElementById('next2').disabled = true;
+          renderCalendar(); renderTimes();
+        });
+      }
+      grid.appendChild(cell);
+    }
+  }
+
+  function renderTimes(){
+    const timeGrid = document.getElementById('timeGrid');
+    timeGrid.innerHTML = '';
+    if(!selectedDate) return;
+    const slots = ["18:00","18:30","19:00","19:30","20:00","20:30","21:00","21:30"];
+    const seed = selectedDate.getDate();
+    slots.forEach((t,i)=>{
+      const taken = (i+seed) % 6 === 0;
+      const chip = document.createElement('div');
+      chip.className = 'time-chip';
+      if(taken){ chip.style.opacity='0.3'; chip.style.textDecoration='line-through'; chip.style.cursor='not-allowed'; }
+      chip.textContent = t;
+      if(!taken){
+        chip.addEventListener('click', ()=>{
+          document.querySelectorAll('.time-chip').forEach(c=>c.classList.remove('active'));
+          chip.classList.add('active');
+          selectedTime = t;
+          document.getElementById('next2').disabled = false;
+        });
+      }
+      timeGrid.appendChild(chip);
+    });
+  }
+
+  document.getElementById('calPrev').addEventListener('click', ()=>{ viewDate.setMonth(viewDate.getMonth()-1); renderCalendar(); });
+  document.getElementById('calNext').addEventListener('click', ()=>{ viewDate.setMonth(viewDate.getMonth()+1); renderCalendar(); });
+  renderCalendar();
+
+  document.getElementById('next2').addEventListener('click', ()=>goTo(2));
+  document.getElementById('back3').addEventListener('click', ()=>goTo(1));
+  document.getElementById('next3').addEventListener('click', ()=>{ buildReview(); goTo(3); });
+  document.getElementById('back4').addEventListener('click', ()=>goTo(2));
+
+  function buildReview(){
+    const dateStr = selectedDate ? selectedDate.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}) : '—';
+    const rows = [
+      ['Party Size', partySize + ' Guests'],
+      ['Seating', seating],
+      ['Date & Time', dateStr + ' · ' + (selectedTime||'—')],
+      ['Name', document.getElementById('custName').value || '—'],
+      ['Email', document.getElementById('custEmail').value || '—'],
+      ['Phone', document.getElementById('custPhone').value || '—']
+    ];
+    document.getElementById('reviewBlock').innerHTML = rows.map(([k,v])=>
+      `<div class="review-row"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+  }
+
+  document.getElementById('submitBtn').addEventListener('click', ()=>{
+    const resId = 'RES-' + (1000 + Math.floor(Math.random()*8999));
+    const reservation = {
+      id: resId,
+      partySize, seating,
+      date: selectedDate ? selectedDate.toISOString() : new Date().toISOString(),
+      time: selectedTime,
+      customerName: document.getElementById('custName').value || 'Guest',
+      customerEmail: document.getElementById('custEmail').value,
+      customerPhone: document.getElementById('custPhone').value,
+      notes: document.getElementById('custNotes').value,
+      status: 'Confirmed',
+      createdAt: new Date().toISOString()
+    };
+    const key = RESTAURANT.storageKey + '_reservations';
+    let reservations = [];
+    try{ reservations = JSON.parse(localStorage.getItem(key) || '[]'); }catch(e){ reservations = []; }
+    reservations.push(reservation);
+    localStorage.setItem(key, JSON.stringify(reservations));
+
+    document.getElementById('confirmId').textContent = `Reservation ${resId} · ${partySize} Guests · ${selectedTime||''}`;
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('confirmView').classList.add('show');
+    document.querySelector('.progress-rail').style.display = 'none';
+    document.querySelector('.step-label').style.display = 'none';
+  });
+</script>
+
+</body>
+</html>

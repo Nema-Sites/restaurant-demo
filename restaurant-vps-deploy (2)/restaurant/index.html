@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restaurant Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E0B09; --panel:#17130F; --panel-2:#1D1812;
+    --ink:#F3ECE1; --muted:#9C8F7E; --line:rgba(243,236,225,0.12);
+    --gold:#C9A15A; --gold-light:#E4C583; --gold-tint:rgba(201,161,90,0.10);
+    --wine:#8C2F39;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; }
+  h1,h2,h3,.display{ font-family:'Cormorant Garamond',serif; font-weight:500; letter-spacing:0.01em; }
+  .italic{ font-style:italic; font-weight:400; }
+  .mono{ font-family:'JetBrains Mono',monospace; }
+  a{ color:inherit; text-decoration:none; }
+  section{ max-width:1180px; margin:0 auto; padding:0 28px; }
+  button{ font-family:'Inter'; }
+  .small-caps{ text-transform:uppercase; letter-spacing:0.18em; font-size:11px; font-weight:500; color:var(--muted); }
+
+  .ornament{ display:flex; align-items:center; gap:14px; justify-content:center; }
+  .ornament .line{ height:1px; width:44px; background:linear-gradient(90deg, transparent, var(--gold)); }
+  .ornament .line.r{ background:linear-gradient(90deg, var(--gold), transparent); }
+  .ornament .diamond{ width:6px; height:6px; background:var(--gold); transform:rotate(45deg); }
+
+  header{ background:rgba(14,11,9,0.85); backdrop-filter:blur(10px); position:sticky; top:0; z-index:50; border-bottom:1px solid var(--line); }
+  .nav-wrap{ max-width:1180px; margin:0 auto; padding:22px 28px; display:flex; align-items:center; justify-content:space-between; }
+  .logo{ display:flex; align-items:center; gap:12px; font-size:21px; font-weight:500; font-family:'Cormorant Garamond'; letter-spacing:0.02em; }
+  .logo-mark{ width:9px; height:9px; background:var(--gold); transform:rotate(45deg); }
+  nav.links{ display:flex; gap:36px; }
+  nav.links a{ font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); font-weight:500; }
+  nav.links a:hover{ color:var(--gold-light); }
+  .btn{ font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; padding:13px 26px; cursor:pointer; border:1px solid var(--gold); transition:all .2s ease; display:inline-block; }
+  .btn-gold{ background:var(--gold); color:var(--bg); }
+  .btn-gold:hover{ background:var(--gold-light); border-color:var(--gold-light); }
+  .btn-ghost{ background:transparent; color:var(--ink); border-color:var(--line); }
+  .btn-ghost:hover{ border-color:var(--gold); color:var(--gold-light); }
+  .nav-ctas{ display:flex; gap:12px; }
+
+  /* HERO — full bleed, editorial */
+  .hero{ padding:110px 28px 90px; text-align:center; position:relative; overflow:hidden; }
+  .hero::before{ content:""; position:absolute; top:-20%; left:50%; transform:translateX(-50%); width:900px; height:600px;
+    background:radial-gradient(ellipse, rgba(201,161,90,0.08), transparent 65%); pointer-events:none; }
+  .hero-inner{ position:relative; max-width:760px; margin:0 auto; }
+  .hero .small-caps{ margin-bottom:26px; display:block; }
+  .hero h1{ font-size:74px; line-height:1.05; margin:0 0 30px; font-weight:400; }
+  .hero h1 em{ display:block; color:var(--gold-light); }
+  .hero p.lead{ font-size:17px; line-height:1.8; color:var(--muted); max-width:520px; margin:0 auto 42px; font-weight:300; }
+  .hero-ctas{ display:flex; gap:16px; justify-content:center; margin-bottom:54px; }
+  .hero .ornament{ margin-top:10px; }
+
+  /* stats strip */
+  .stats-strip{ border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:30px 28px; }
+  .stats-inner{ display:flex; justify-content:space-around; flex-wrap:wrap; gap:24px; max-width:1180px; margin:0 auto; }
+  .stat-cell{ text-align:center; }
+  .stat-cell .n{ font-family:'Cormorant Garamond'; font-size:26px; color:var(--gold-light); font-weight:500; }
+  .stat-cell .l{ font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-top:6px; }
+
+  /* ABOUT — editorial two column */
+  .about{ padding:110px 28px; display:grid; grid-template-columns:0.9fr 1.1fr; gap:70px; align-items:center; }
+  .about .small-caps{ display:block; margin-bottom:18px; }
+  .about h2{ font-size:38px; margin:0 0 26px; line-height:1.2; }
+  .about p{ font-size:16px; line-height:1.85; color:var(--muted); margin:0 0 28px; font-weight:300; }
+  .about-quote{ border-left:1px solid var(--gold); padding-left:22px; font-family:'Cormorant Garamond'; font-style:italic; font-size:20px; color:var(--gold-light); line-height:1.6; margin:30px 0; }
+  .team-row{ display:flex; gap:34px; margin-top:10px; }
+  .team-item .small-caps{ margin-bottom:4px; }
+  .team-item strong{ display:block; font-family:'Cormorant Garamond'; font-size:17px; font-weight:500; color:var(--ink); }
+
+  .hours-card{ background:var(--panel); border:1px solid var(--line); padding:40px; }
+  .hours-card h3{ font-size:20px; margin:0 0 22px; font-weight:500; }
+  .hours-row{ display:flex; justify-content:space-between; padding:13px 0; border-top:1px solid var(--line); font-size:14px; }
+  .hours-row:first-of-type{ border-top:none; }
+  .hours-row .d{ color:var(--muted); }
+  .hours-row .h{ font-family:'JetBrains Mono'; letter-spacing:0.02em; }
+  .hours-card .addr{ margin-top:26px; padding-top:22px; border-top:1px solid var(--line); font-size:13.5px; color:var(--muted); line-height:1.8; }
+  .hours-card .addr strong{ color:var(--ink); display:block; margin-bottom:4px; font-weight:500; }
+
+  /* MENU PREVIEW — printed menu card look */
+  .menu-preview{ padding:100px 28px 120px; }
+  .section-head{ max-width:600px; margin:0 auto 60px; text-align:center; }
+  .section-head .small-caps{ display:block; margin-bottom:16px; }
+  .section-head h2{ font-size:38px; margin:0 0 18px; font-weight:400; }
+  .section-head p{ color:var(--muted); font-size:15px; line-height:1.75; font-weight:300; }
+
+  .menu-card{ background:var(--panel); border:1px solid var(--line); padding:56px; max-width:760px; margin:0 auto; }
+  .menu-line{ display:flex; align-items:baseline; gap:10px; padding:20px 0; border-top:1px dotted var(--line); }
+  .menu-line:first-of-type{ border-top:none; padding-top:0; }
+  .ml-name{ font-family:'Cormorant Garamond'; font-size:20px; font-weight:500; white-space:nowrap; }
+  .ml-tag{ font-size:9.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--gold); border:1px solid var(--gold); padding:2px 8px; margin-left:8px; }
+  .ml-leader{ flex:1; border-bottom:1px dotted var(--line); position:relative; top:-5px; }
+  .ml-price{ font-family:'JetBrains Mono'; font-size:14px; color:var(--gold-light); white-space:nowrap; }
+  .ml-desc{ font-size:12.5px; color:var(--muted); font-style:italic; font-weight:300; width:100%; margin-top:-10px; padding-bottom:2px; }
+
+  /* CTA BANNER */
+  .cta-banner{ padding:0 28px 120px; }
+  .banner-inner{ border:1px solid var(--gold); padding:70px 40px; text-align:center; position:relative; }
+  .banner-inner::before{ content:""; position:absolute; inset:8px; border:1px solid var(--line); pointer-events:none; }
+  .banner-inner h2{ font-size:34px; margin:0 0 18px; font-weight:400; }
+  .banner-inner p{ color:var(--muted); font-size:15px; margin:0 0 34px; font-weight:300; }
+  .banner-inner .hero-ctas{ justify-content:center; margin-bottom:0; }
+
+  footer{ border-top:1px solid var(--line); padding:44px 28px; }
+  .foot-wrap{ max-width:1180px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+  .foot-wrap .brand{ font-family:'Cormorant Garamond'; font-weight:500; font-size:18px; }
+  .foot-wrap .made{ font-size:12px; color:var(--muted); }
+  .foot-wrap .made a{ color:var(--gold-light); }
+
+  @media (max-width:980px){
+    .hero h1{ font-size:46px; }
+    .about{ grid-template-columns:1fr; }
+    nav.links{ display:none; }
+    .menu-card{ padding:36px 24px; }
+  }
+  @media (max-width:560px){
+    .hero-ctas, .nav-ctas{ flex-direction:column; width:100%; }
+    .ml-name{ font-size:17px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-wrap">
+    <div class="logo"><span class="logo-mark"></span> <span id="navName"></span></div>
+    <nav class="links">
+      <a href="index.html">Home</a>
+      <a href="menu.html">Order Online</a>
+      <a href="reservations.html">Reservations</a>
+    </nav>
+    <div class="nav-ctas">
+      <a href="menu.html" class="btn btn-ghost">Order</a>
+      <a href="reservations.html" class="btn btn-gold">Reserve</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <span class="small-caps" id="heroCuisine"></span>
+    <h1 id="heroName">Restaurant Name<em id="heroTagline">Tagline</em></h1>
+    <p class="lead" id="heroLine"></p>
+    <div class="hero-ctas">
+      <a href="reservations.html" class="btn btn-gold">Reserve a Table</a>
+      <a href="menu.html" class="btn btn-ghost">Order Online</a>
+    </div>
+    <div class="ornament"><span class="line"></span><span class="diamond"></span><span class="line r"></span></div>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-cell"><div class="n">68</div><div class="l">Seats Indoors</div></div>
+    <div class="stat-cell"><div class="n">4.8</div><div class="l">Guest Rating</div></div>
+    <div class="stat-cell"><div class="n">100km</div><div class="l">Sourced Local</div></div>
+    <div class="stat-cell"><div class="n">Live Fire</div><div class="l">Every Dish</div></div>
+  </div>
+</div>
+
+<section class="about">
+  <div>
+    <span class="small-caps">Our Story</span>
+    <h2>About <span id="aboutName"></span></h2>
+    <p id="aboutText"></p>
+    <div class="team-row" id="teamRow"></div>
+  </div>
+  <div class="hours-card">
+    <h3>Hours</h3>
+    <div id="hoursList"></div>
+    <div class="addr"><strong>Visit us</strong><span id="addrText"></span></div>
+  </div>
+</section>
+
+<section class="menu-preview">
+  <div class="section-head">
+    <span class="small-caps">From the Kitchen</span>
+    <h2>A Few Favorites</h2>
+    <p>The complete menu — everything available for online ordering — lives on the ordering page.</p>
+  </div>
+  <div class="menu-card" id="menuCard"></div>
+</section>
+
+<section class="cta-banner">
+  <div class="banner-inner">
+    <h2>Book a Table, or Have It Delivered</h2>
+    <p>Reserve for tonight, or order straight from the kitchen — either way takes about a minute.</p>
+    <div class="hero-ctas">
+      <a href="reservations.html" class="btn btn-gold">Reserve a Table</a>
+      <a href="menu.html" class="btn btn-ghost">Order Online</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-wrap">
+    <div class="brand" id="footName"></div>
+    <div class="made">Restaurant demo built by <a href="https://nemasites.com" target="_blank" rel="noopener">Nemasites</a></div>
+  </div>
+</footer>
+
+<script src="config.js"></script>
+<script>
+  document.title = RESTAURANT.name + " — " + RESTAURANT.tagline;
+  document.getElementById('navName').textContent = RESTAURANT.name;
+  document.getElementById('heroCuisine').textContent = RESTAURANT.cuisine;
+  document.getElementById('heroName').innerHTML = RESTAURANT.name + '<em>' + RESTAURANT.tagline + '</em>';
+  document.getElementById('heroLine').textContent = RESTAURANT.heroLine;
+  document.getElementById('aboutName').textContent = RESTAURANT.name;
+  document.getElementById('aboutText').textContent = RESTAURANT.about;
+  document.getElementById('addrText').textContent = RESTAURANT.address + ' — ' + RESTAURANT.phone;
+  document.getElementById('footName').textContent = RESTAURANT.name;
+
+  document.getElementById('hoursList').innerHTML = RESTAURANT.hours.map(h=>
+    `<div class="hours-row"><span class="d">${h.d}</span><span class="h">${h.h}</span></div>`
+  ).join('');
+
+  document.getElementById('teamRow').innerHTML = RESTAURANT.team.map(t=>
+    `<div class="team-item"><span class="small-caps">${t.role}</span><strong>${t.name}</strong></div>`
+  ).join('');
+
+  const featured = RESTAURANT.menu.flatMap(c=>c.items).slice(0,5);
+  document.getElementById('menuCard').innerHTML = featured.map(d=>`
+    <div class="menu-line">
+      <span class="ml-name">${d.name}${d.tag?`<span class="ml-tag">${d.tag}</span>`:''}</span>
+      <span class="ml-leader"></span>
+      <span class="ml-price">R${d.price}</span>
+      <span class="ml-desc">${d.desc}</span>
+    </div>`).join('');
+</script>
+
+</body>
+</html>
